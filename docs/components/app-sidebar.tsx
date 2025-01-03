@@ -3,22 +3,11 @@
 import * as React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { GalleryVerticalEnd, Search } from 'lucide-react'
-
+import { Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-} from '@/components/ui/sidebar'
 import { useDocSearch } from '@/hooks/useDocSearch'
+import { cn } from '@/lib/utils'
 
 interface DocItem {
   title: string
@@ -64,65 +53,59 @@ export function AppSidebar({ docs }: AppSidebarProps) {
   }, [docsBySection, searchQuery])
 
   return (
-    <Sidebar>
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link href="/">
-                <div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <GalleryVerticalEnd className="size-4" />
-                </div>
-                <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-semibold">Docs</span>
-                  <span className="">v1.0.0</span>
-                </div>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-        <form onSubmit={(e) => e.preventDefault()}>
-          <SidebarGroup className="py-0">
-            <SidebarGroupContent className="relative">
+    <div className="fixed inset-y-0 left-0 w-64 border-r bg-background">
+      <div className="flex flex-col h-full">
+        <div className="border-b p-4">
+          <Link 
+            href="/" 
+            className="flex items-center gap-2 text-xl font-semibold text-primary mb-4"
+          >
+            Aetherial
+          </Link>
+          <form onSubmit={(e) => e.preventDefault()}>
+            <div className="relative">
               <Label htmlFor="search" className="sr-only">
                 Search
               </Label>
               <Input
                 id="search"
-                placeholder="Search the docs..."
+                placeholder="Search..."
                 className="pl-8"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <Search className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 select-none opacity-50" />
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </form>
-      </SidebarHeader>
-      <SidebarContent>
-        {Object.entries(filteredDocs).map(([section, items]) => (
-          <SidebarGroup key={section}>
-            <SidebarGroupLabel>{section}</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
+              <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            </div>
+          </form>
+        </div>
+        <div className="flex-1 overflow-auto py-4">
+          {Object.entries(filteredDocs).map(([section, items]) => (
+            <div key={section} className="mb-6">
+              <h3 className="px-4 mb-2 text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                {section}
+              </h3>
+              <ul className="space-y-1">
                 {items.map((item) => (
-                  <SidebarMenuItem key={item.path}>
-                    <SidebarMenuButton 
-                      asChild 
-                      isActive={pathname === `/docs/${item.path.replace('.md', '')}`}
+                  <li key={item.path}>
+                    <Link
+                      href={`/docs/${item.path.replace('.md', '')}`}
+                      className={cn(
+                        'flex items-center gap-2 px-4 py-1.5 text-sm transition-colors',
+                        pathname === `/docs/${item.path.replace('.md', '')}` 
+                          ? 'bg-primary/10 text-primary font-medium'
+                          : 'hover:bg-muted'
+                      )}
                     >
-                      <Link href={`/docs/${item.path.replace('.md', '')}`}>
-                        {item.title}
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+                      <span className="class-indicator w-5 h-5">C</span>
+                      <span>{item.title}</span>
+                    </Link>
+                  </li>
                 ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
-      </SidebarContent>
-    </Sidebar>
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   )
 }
-

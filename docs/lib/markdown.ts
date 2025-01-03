@@ -2,6 +2,7 @@ import { remark } from 'remark'
 import html from 'remark-html'
 import { readFileSync, readdirSync, statSync } from 'fs'
 import { join, relative } from 'path'
+import remarkGfm from 'remark-gfm'
 
 interface MarkdownFile {
   title: string
@@ -9,24 +10,64 @@ interface MarkdownFile {
   section: string
 }
 
-export async function getMarkdownContent(filePath: string) {
-  try {
-    // Read markdown file
-    const fullPath = join(process.cwd(), 'gen', 'output', filePath)
-    const fileContents = readFileSync(fullPath, 'utf8')
+const mdnPrimitives = [
+  'null', 'undefined', 'boolean', 'number', 'string', 'symbol', 'bigint',
+  'object', 'function', 'array'
+]
 
-    // Use remark to convert markdown into HTML string
+function linkifyPrimitives(content: string): string {
+  return content.replace(/`(.*?)`/g, (match, p1) => {
+    if (mdnPrimitives.includes(p1.toLowerCase())) {
+      return `<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#${p1.toLowerCase()}" target="_blank" rel="noopener noreferrer" class="mdn-link">${match}</a>`
+    }
+    return match
+  })
+}
+
+function linkifyInternalClasses(content: string, allClasses: string[]): string {
+  return content.replace(/`(.*?)`/g, (match, p1) => {
+    if (allClasses.includes(p1)) {
+      return `<a href="/docs/${p1.toLowerCase()}" class="internal-link">${match}</a>`
+    }
+    return match
+  })
+}
+
+function improveContent(content: string): string {
+  // Remove repetitive lists
+  content = content.replace(/(\* \[.*?\]$$#.*?$$\n)+/g, (match) => {
+    const uniqueItems = [...new Set(match.split('\n'))];
+    return uniqueItems.join('\n');
+  });
+
+  // Make content more concise
+  content = content.replace(/\n\n+/g, '\n\n');
+
+  return content;
+}
+
+export async function getMarkdownContent(filePath: string, allClasses: string[]) {
+  try {
+    const fullPath = join(process.cwd(), 'gen', 'output', filePath)
+    let fileContents = readFileSync(fullPath, 'utf8')
+
+    fileContents = improveContent(fileContents)
+
     const processedContent = await remark()
+      .use(remarkGfm)
       .use(html)
       .process(fileContents)
     
-    const contentHtml = processedContent.toString()
+    let contentHtml = processedContent.toString()
+    contentHtml = linkifyPrimitives(contentHtml)
+    contentHtml = linkifyInternalClasses(contentHtml, allClasses)
 
     return {
       contentHtml,
       filePath
     }
   } catch (error) {
+    console.error('Error processing markdown:', error)
     return null
   }
 }

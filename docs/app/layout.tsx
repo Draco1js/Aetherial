@@ -19,7 +19,7 @@ export default function RootLayout({
   const docs = getAllMarkdownFiles()
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className="dark">
       <body className={`${inter.className} antialiased`}>
         <SidebarProvider>
           <AppSidebar docs={docs} />
@@ -30,4 +30,3 @@ export default function RootLayout({
     </html>
   )
 }
-

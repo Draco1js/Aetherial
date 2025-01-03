@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "node ./gen/docs.js"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.4",
@@ -15,15 +16,18 @@
     "@radix-ui/react-separator": "^1.1.1",
     "@radix-ui/react-slot": "^1.1.1",
     "@radix-ui/react-tooltip": "^1.1.6",
+    "@swc/core": "^1.10.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "fs": "^0.0.1-security",
+    "jsdoc-to-markdown": "^9.1.1",
     "lucide-react": "^0.469.0",
     "next": "14.2.16",
     "path": "^0.12.7",
     "react": "^18",
     "react-dom": "^18",
     "remark": "^15.0.1",
+    "remark-gfm": "^4.0.0",
     "remark-html": "^16.0.1",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
