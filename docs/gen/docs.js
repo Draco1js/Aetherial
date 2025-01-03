@@ -4,7 +4,7 @@ const jsdoc2md = require('jsdoc-to-markdown');
 const swc = require('@swc/core');
 
 // Directory containing the source files
-const srcDir = path.join(__dirname, '..', 'src');
+const srcDir = path.join(__dirname, '..', '..', 'src');
 
 // Output directory for the documentation
 const outputDir = path.join(__dirname, 'output');
